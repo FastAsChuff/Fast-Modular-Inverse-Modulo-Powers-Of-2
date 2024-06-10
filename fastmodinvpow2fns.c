@@ -48,3 +48,27 @@ uint64_t modinv64(uint64_t n) {
   uint32_t C = minusCB * (0x100000000ULL - D);
   return D + ((uint64_t)C << 32);
 }
+
+// Newton’s method per Warren ,
+// Hacker’s Delight pp . 246 - -247
+// From https://arxiv.org/pdf/1902.01961
+uint32_t modinv32x(uint32_t d) {
+  uint32_t x0 = d + 2 * ((d+1) & 4);
+  uint32_t x1 = x0 * (2 - d * x0);
+  uint32_t x2 = x1 * (2 - d * x1);
+  return x2 * (2 - d * x2);
+}
+
+uint64_t modinv64x(uint64_t n) {
+// for odd n, returns m s.t. nm = 1 mod 2^64.
+  // Let M = 2^32, so n = AM + B
+  // Result r = CM + D where BD = 1 mod 2^32
+  // CB + AD + (BD >> 8) = 0 mod 2^32
+  uint32_t B = n & 0xffffffff;
+  uint32_t A = n >> 32;
+  uint32_t D = modinv32x(B);
+  uint32_t minusCB = (A*D) + (((uint64_t)B*D) >> 32);
+  uint32_t C = minusCB * (0x100000000ULL - D);
+  return D + ((uint64_t)C << 32);
+}
+

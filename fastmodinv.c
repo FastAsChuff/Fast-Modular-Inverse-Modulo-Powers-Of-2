@@ -56,19 +56,6 @@ void getmodinv8lut() {
     printf("\n");
   }  
 }
-// c = floor ( (1 <<64) / d ) + 1; Take L = N + 1
-  uint64_t c = 0xFFFFFFFFFFFFFFFFULL / d
-+ 1 + (( d & ( d - 1) ) ==0 ? 1 : 0) ;
-static inline uint32_t mod190201961(uint32_t d, uint32_t n, uint64_t c) {
-  // From https://arxiv.org/pdf/1902.01961
-  // (NOT FAST!) fastmod computes ( n mod d ) given precomputed c
-  // Requires n, d < 2^31
-  uint64_t lowbits = c * n ;
-  int32_t highbits = ((__int128_t)lowbits * d ) >> 64;
-  // answer is equivalent to (n <0) ? highbits - 1 + d : highbits
-  return highbits - ((d - 1) & (n >> 31));
-}
-
 */
 
 void printhelp(char* argv0) {
@@ -77,6 +64,16 @@ void printhelp(char* argv0) {
 }
 
 int main(int argc, char **argv) { 
+/*
+  for (uint64_t i=1; i<=0xffffffff; i+=2) {
+    if (modinv32(i) != modinv32x(i)) {
+      printf("Fail @ %lu\n", i);
+      exit(1);
+    }
+  }
+  printf("Passed!.\n");
+  exit(0);
+*/
   if (argc < 2) printhelp(argv[0]);
   uint64_t n = atolu(argv[1]); 
   if ((n & 1) == 0) printhelp(argv[0]);
@@ -85,7 +82,7 @@ int main(int argc, char **argv) {
   uint64_t sum = 0; 
   uint64_t cyclesstart = get_cycles();
   for (uint32_t i=0; i<200000; i++) {
-    sum += modinv64(n); 
+    sum += modinv64x(n); 
     n+=2;
   }
   uint64_t cyclesend = get_cycles();
