@@ -71,22 +71,42 @@ static inline uint32_t mod190201961(uint32_t d, uint32_t n, uint64_t c) {
 
 */
 
+void printhelp(char* argv0) {
+  printf("Benchmark test of modular inverse mod 2^64 calculations.\nUsage %s numstart\nnumstart must be odd and numstart < 2^64 - 400000\n", argv0);
+  exit(0);
+}
+
 int main(int argc, char **argv) { 
-  warmup();
+  if (argc < 2) printhelp(argv[0]);
   uint64_t n = atolu(argv[1]); 
+  if ((n & 1) == 0) printhelp(argv[0]);
+  if (n >= 0xFFFFFFFFFFF9E580ULL) printhelp(argv[0]);
+  warmup();
+  uint64_t sum = 0; 
   uint64_t cyclesstart = get_cycles();
-  uint64_t invn = modinv64(n); 
+  for (uint32_t i=0; i<200000; i++) {
+    sum += modinv64(n); 
+    n+=2;
+  }
   uint64_t cyclesend = get_cycles();
-  printf("%lu*%lu mod 2^64 = %lu\n", n, invn, (n*invn));
+  printf("%lu\n", sum);
   printf("%lu cycles\n", cyclesend - cyclesstart);
-  myint128_t A, N, C;
+  n = atolu(argv[1]);
+  myint128_t A, N, C, S;
+  C.i128 = 0;
+  S.i128 = 0;
   A.i128 = n;
   N.i128 = (__int128)1 << 64;
+  uint32_t res = 0;
   cyclesstart = get_cycles();
-  uint32_t res = modinv(A, N, &C);
+  for (uint32_t i=0; i<200000; i++) {
+    res |= modinv(A, N, &C);
+    S.i128 += C.i128;
+    A.i128+=2;
+  }
   cyclesend = get_cycles();
   assert(res == 0);
-  invn = C.i128;
-  printf("%lu*%lu mod 2^64 = %lu\n", n, invn, (n*invn));
+  sum = S.i128;
+  printf("%lu\n", sum);
   printf("%lu cycles\n", cyclesend - cyclesstart);
 }
