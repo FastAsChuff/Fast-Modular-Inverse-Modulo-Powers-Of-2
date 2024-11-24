@@ -49,9 +49,11 @@ uint64_t modinv64(uint64_t n) {
   return D + ((uint64_t)C << 32);
 }
 
-// Newton’s method per Warren ,
-// Hacker’s Delight pp . 246 - -247
-// From https://arxiv.org/pdf/1902.01961
+// Newton’s method per Warren,
+// Hacker’s Delight pp. 246 - 247
+// Name modified from function multiplicative_inverse(uint32_t d) found here https://arxiv.org/pdf/1902.01961 
+//   - D. Lemire, O. Kaser, and N. Kurz, Faster Remainder by Direct Computation, 2018.
+// Unsure of the license. Use slower non 'x' functions where licensing matters, or obtain permission from license holder.
 uint32_t modinv32x(uint32_t d) {
   uint32_t x0 = d + 2 * ((d+1) & 4);
   uint32_t x1 = x0 * (2 - d * x0);
